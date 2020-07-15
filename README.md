@@ -5,7 +5,7 @@ A springboot application doing an experiment with rabbit mq
  - ~Add models~
  - ~Add a rabbitmq connection~
  - ~Add a producer~
- - Add a consumer
+ - ~Add a consumer~
 
 ## Publish to the queue
 url: `http://localhost:8080/api/v1/producer` #post
