@@ -1,14 +1,16 @@
 package com.pato.rabbitmq.config;
 
 
+import com.pato.rabbitmq.service.RabbitMQConsumer;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -87,13 +89,23 @@ public class RabbitMQConfig {
         return getRabbitTemplate(queueName, routingkey);
     }
 
+    // reusable stuff nakuambia
     private RabbitTemplate getRabbitTemplate(String queue, String routingKeyA) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate();
         rabbitTemplate.setConnectionFactory(connectionFactory());
-//        rabbitTemplate.setExchange(exchange);
-//        rabbitTemplate.setDefaultReceiveQueue(queue);
-//        rabbitTemplate.setRoutingKey(routingKeyA);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;
     }
+
+
+    //create MessageListenerContainer using custom connection factory
+    @Bean
+    MessageListenerContainer messageListenerContainer() {
+        SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+        simpleMessageListenerContainer.setConnectionFactory(connectionFactory());
+        simpleMessageListenerContainer.setQueues(queue());
+        simpleMessageListenerContainer.setMessageListener(new RabbitMQConsumer());
+        return simpleMessageListenerContainer;
+    }
+
 }
